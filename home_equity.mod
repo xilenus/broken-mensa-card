@@ -204,7 +204,7 @@ epsilon_do_bar_squiggle = erfinv(-(erf(epsilon_do_bar/(SIGMA*2^0.5))+1.992))*SIG
 f_do_bar_squiggle = 1/(2*SIGMA^2*pi)^0.5*exp(-epsilon_do_bar_squiggle^2/(2*SIGMA^2));            //Third, the steady-state mobility rate due to members with long-distance job offers is 0.10 per cent per month
 F_do_bar_squiggle = (1 + erf(epsilon_do_bar_squiggle/(SIGMA*2^0.5)))/2;                          //Third, the steady-state mobility rate due to members with long-distance job offers is 0.10 per cent per month
 
-n_do_squiggle = ((0.001-F_do_bar)*n_do*NU)/((1-NU)*(F_do_bar_squiggle-0.001));                   //PAPER
+n_do_squiggle = ((0.001-F_do_bar)*n_do*NU)/((1-NU)*(F_do_bar_squiggle-0.001));                   //Third, the steady-state mobility rate due to members with long-distance job offers is 0.10 per cent per month
 
 
 n_m = (z_a*XI-n_u*z_a*XI+d-c-R*d)/ZETA;

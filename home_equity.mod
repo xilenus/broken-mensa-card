@@ -160,14 +160,15 @@ g_f_hat = 0.34;          //Sixth, the probability that a vacancy is filled is 0.
 
 //WRITE YOUR OWN VALUES (THE ONLY INPUT VALUES)
 
+h = 1; //stock of housing //fixed and normalized to one
+
 R = 1.05; //gross interest rate on debt
-g_hat = 0.4; //probability of unemployed member to get a job offer
-n_s = 0.2; //fraction of impatient households that look for job
+g_hat = 0.25; //probability of unemployed member to get a job offer
+n_s = 0.15; //fraction of impatient households that look for job
 n_s_squiggle = 0.15; //fraction of patient households that look for job
 
-h = 1000; //stock of housing
 z_a = 300; //worker produce per period
-d = 500; //amount of debt
+d = 2000; //amount of debt
 
 c = 100; //non-durable consumption of impatient households
 c_squiggle = 120; //non-durable consumption of patient households
@@ -193,19 +194,21 @@ d_squiggle = NU*d/(NU-1);
 v_hat = m_hat/g_f_hat;
 y = XI*z_a;
 n_do = OMEGA*g_hat*n_s;
-p_h = 1.4*y*12/h;                            //Fourth, the steady-state value of housing wealth is 140 per cent of annual output
+p_h = 1.4*z_a*12/(h+h_squiggle);                            //Fourth, the steady-state value of housing wealth is 140 per cent of annual output
 n_u = (n_s-RHO_u)/(1-RHO_u);
 n_u_squiggle = (NU*n_u-n_u_hat)/(NU-1);
+
 
 F_do_bar = (n_s-n_s*g_hat+OMEGA*n_s*g_hat-n_u)/(OMEGA*n_s*g_hat);
 epsilon_do_bar = SIGMA*2^0.5*erfinv(2*F_do_bar - 1);
 f_do_bar = 1/(2*SIGMA^2*pi)^0.5*expon^(-epsilon_do_bar^2/(2*SIGMA^2));
-epsilon_do_bar_squiggle = erfinv(-(erf(epsilon_do_bar/(SIGMA*2^0.5))+1.992))*SIGMA*2^0.5;        //Third, the steady-state mobility rate due to members with long-distance job offers is 0.10 per cent per month
+
+
+epsilon_do_bar_squiggle = erfinv(-(erf(epsilon_do_bar/(SIGMA*2^0.5))*NU+1.998)/(1-NU))*SIGMA*2^0.5;        //Third, the steady-state mobility rate due to members with long-distance job offers is 0.10 per cent per month
 f_do_bar_squiggle = 1/(2*SIGMA^2*pi)^0.5*exp(-epsilon_do_bar_squiggle^2/(2*SIGMA^2));            //Third, the steady-state mobility rate due to members with long-distance job offers is 0.10 per cent per month
 F_do_bar_squiggle = (1 + erf(epsilon_do_bar_squiggle/(SIGMA*2^0.5)))/2;                          //Third, the steady-state mobility rate due to members with long-distance job offers is 0.10 per cent per month
 
-n_do_squiggle = ((0.001-F_do_bar)*n_do*NU)/((1-NU)*(F_do_bar_squiggle-0.001));                   //Third, the steady-state mobility rate due to members with long-distance job offers is 0.10 per cent per month
-
+n_do_squiggle = OMEGA*g_hat*n_s_squiggle;
 
 n_m = (z_a*XI-n_u*z_a*XI+d-c-R*d)/ZETA;
 n_m_squiggle = (z_a*XI-n_u_squiggle*z_a*XI+d_squiggle-c_squiggle-R*d_squiggle)/ZETA;

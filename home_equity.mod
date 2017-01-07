@@ -1,37 +1,65 @@
 //endogenous variables
 var
-c h d 
-c_squiggle h_squiggle d_squiggle
+
+c h d
 
 epsilon_bar epsilon_do_bar
-epsilon_bar_squiggle epsilon_do_bar_squiggle
 
 n_m n_u n_s n_do
-n_m_squiggle n_u_squiggle n_s_squiggle n_do_squiggle
 
 n_u_hat n_s_hat m_hat g_hat g_f_hat v_hat
 
-V
 p_h R
 lambda_cc
 
 f_do_bar F_do_bar f_bar F_bar
-f_do_bar_squiggle F_do_bar_squiggle f_bar_squiggle F_bar_squiggle
 f_j F_j
 
-lambda_t_squiggle y z_a
+y z_a
 
-G G_squiggle
+G
+
+
+
+
+
 ;
+
+
+
+
+
+
 
 //exogenous variables
 varexo
 epsilon_j z_h
 ;
 
+
+
+
 //parameters
 parameters
 BETA GAMMA ALPHA_imp ALPHA_pat PSI SIGMA ZETA RHO_u ETA MU THETA OMEGA XI KAPPA NU CHI PHI_h PHI_a pi expon
+
+c_ST h_ST d_ST
+
+epsilon_bar_ST epsilon_do_bar_ST epsilon_j_ST z_h_ST
+
+n_m_ST n_u_ST n_s_ST n_do_ST
+
+n_u_hat_ST n_s_hat_ST m_hat_ST g_hat_ST g_f_hat_ST v_hat_ST
+
+p_h_ST R_ST
+lambda_cc_ST
+
+f_do_bar_ST F_do_bar_ST f_bar_ST F_bar_ST
+f_j_ST F_j_ST
+
+y_ST z_a_ST
+
+G_ST
 
 ;
 
@@ -48,14 +76,61 @@ ZETA = 1.6;
 RHO_u = 0.035;
 ETA = 0.6;
 MU = 0.545;
-THETA = 0.181;
+
+THETA = 0;
 OMEGA = 0.3333;
-XI = 0.98;
+
+XI = 1;
 KAPPA = -4.381;
-NU = 0.2;
+
+NU = 1;
 CHI = 0.8;
 PHI_h = 0.983;
 PHI_a = 0.983;
+
+
+
+
+n_u_hat_ST = 0.05;
+m_hat_ST = 0.0065;
+g_f_hat_ST = 0.34;
+
+h_ST = 1;
+
+R_ST = 1.05;
+g_hat_ST = 0.25;
+n_s_ST = 0.15;
+
+z_a_ST = 300;
+d_ST = 1100;
+
+c_ST = 208;
+
+epsilon_j_ST = 0;
+f_j_ST = 1/(2*SIGMA^2*pi)^0.5*expon^(-epsilon_j_ST^2/(2*SIGMA^2));
+F_j_ST = (1 + erf(epsilon_j_ST/(SIGMA*2^0.5)))/2;
+n_s_hat_ST = n_s_ST*NU;
+v_hat_ST = m_hat_ST/g_f_hat_ST;
+y_ST = XI*z_a_ST;
+n_do_ST = OMEGA*g_hat_ST*n_s_ST;
+p_h_ST = 1.4*z_a_ST*12/(h_ST);
+n_u_ST = (n_s_ST-RHO_u)/(1-RHO_u);
+
+F_do_bar_ST = (n_s_ST-n_s_ST*g_hat_ST+OMEGA*n_s_ST*g_hat_ST-n_u_ST)/(OMEGA*n_s_ST*g_hat_ST);
+epsilon_do_bar_ST = SIGMA*2^0.5*erfinv(2*F_do_bar_ST - 1);
+f_do_bar_ST = 1/(2*SIGMA^2*pi)^0.5*expon^(-epsilon_do_bar_ST^2/(2*SIGMA^2));
+n_m_ST = (z_a_ST*XI-n_u_ST*z_a_ST*XI+d_ST-c_ST-R_ST*d_ST)/ZETA;
+
+F_bar_ST = (n_m_ST - OMEGA*g_hat_ST*n_s_ST*F_do_bar_ST)/(1-OMEGA*g_hat_ST*n_s_ST);
+epsilon_bar_ST = SIGMA*2^0.5*erfinv(2*F_bar_ST - 1);
+f_bar_ST = 1/(2*SIGMA^2*pi)^0.5*expon^(-epsilon_bar_ST^2/(2*SIGMA^2));
+
+G_ST = BETA*(-OMEGA*g_hat_ST*(epsilon_do_bar_ST^2*(1+erf(epsilon_do_bar_ST/(SIGMA*2^0.5)))/4 - epsilon_bar_ST^2*(1+erf(epsilon_bar_ST/(SIGMA*2^0.5)))/4)+(epsilon_do_bar_ST-epsilon_bar_ST)*(1-g_hat_ST+OMEGA*g_hat_ST*(1-F_do_bar_ST))+epsilon_bar_ST*OMEGA*g_hat_ST*(F_do_bar_ST-F_bar_ST));
+
+lambda_cc_ST = (1-BETA*R_ST)/(c_ST-c_ST*BETA+c_ST*BETA*n_m_ST);
+
+z_h_ST = 0;
+
 
 
 
@@ -65,75 +140,121 @@ PHI_a = 0.983;
 
 model;
 
-//INTEGRAL EQUATION
-//epsilon^2*(1+erf(epsilon/(SIGMA*2^0.5)))/4(HIGHER BOUND) - epsilon^2*(1+erf(epsilon/(SIGMA*2^0.5)))/4(LOWER BOUND)
-
 //optimization problem for impatient households
 
-f_do_bar = 1/(2*SIGMA^2*pi)^0.5*expon^(-epsilon_do_bar^2/(2*SIGMA^2));
-F_do_bar = (1 + erf(epsilon_do_bar/(SIGMA*2^0.5)))/2;
-f_bar = 1/(2*SIGMA^2*pi)^0.5*expon^(-epsilon_bar^2/(2*SIGMA^2));
-F_bar = (1 + erf(epsilon_bar/(SIGMA*2^0.5)))/2;
-f_j = 1/(2*SIGMA^2*pi)^0.5*expon^(-epsilon_j^2/(2*SIGMA^2));
-F_j = (1 + erf(epsilon_j/(SIGMA*2^0.5)))/2;
+//f_do_bar = 1/(2*SIGMA^2*pi)^0.5*expon^(-epsilon_do_bar^2/(2*SIGMA^2));
+f_do_bar_ST*f_do_bar = -epsilon_do_bar_ST^2*epsilon_do_bar*exp(-(epsilon_do_bar_ST^2)/(2*SIGMA^2))/(2*pi*SIGMA^6)^0.5;
 
-c + p_h*(h-h(-1)) + ZETA*n_m + R(-1)*d(-1) = (1-n_u)*z_a*XI + d;
-d = n_m*CHI*p_h*h + (1-n_m)*d(-1);
-ALPHA_imp*z_h/h - p_h/c + BETA*p_h(+1)/c(+1) + lambda_cc*n_m*CHI*p_h = 0;
-1/c - lambda_cc + BETA*(lambda_cc(+1)*(1-n_m(+1))-R/c(+1)) = 0;
-PSI = ZETA/c + epsilon_bar - lambda_cc*(CHI*p_h*h-d(-1));
-epsilon_do_bar - epsilon_bar = y/c - KAPPA + (1-RHO_u)*G;
+//F_do_bar = (1 + erf(epsilon_do_bar/(SIGMA*2^0.5)))/2;
+F_do_bar_ST*F_do_bar = epsilon_do_bar_ST*epsilon_do_bar*exp(-(epsilon_do_bar_ST^2)/(SIGMA^2*2))/(SIGMA*2^0.5*pi^0.5);
 
-n_s = n_u + RHO_u*(1-n_u);
-n_u = n_s(-1)*(1-g_hat(-1)+OMEGA*g_hat(-1)*(1-F_do_bar));
-n_m = OMEGA*g_hat(-1)*n_s(-1)*F_do_bar + (1-OMEGA*g_hat(-1)*n_s(-1))*F_bar;
-n_do = OMEGA*g_hat(-1)*n_s;
+//f_bar = 1/(2*SIGMA^2*pi)^0.5*expon^(-epsilon_bar^2/(2*SIGMA^2));
+f_bar_ST*f_bar = -epsilon_bar_ST^2*epsilon_bar*exp(-(epsilon_bar_ST^2)/(2*SIGMA^2))/(2*pi*SIGMA^6)^0.5;
 
-//optimization problem for the patient households
+//F_bar = (1 + erf(epsilon_bar/(SIGMA*2^0.5)))/2;
+F_bar_ST*F_bar = epsilon_bar_ST*epsilon_bar*exp(-(epsilon_bar_ST^2)/(SIGMA^2*2))/(SIGMA*2^0.5*pi^0.5);
 
-f_do_bar_squiggle = 1/(2*SIGMA^2*pi)^0.5*exp(-epsilon_do_bar_squiggle^2/(2*SIGMA^2));
-F_do_bar_squiggle = (1 + erf(epsilon_do_bar_squiggle/(SIGMA*2^0.5)))/2;
-f_bar_squiggle = 1/(2*SIGMA^2*pi)^0.5*exp(-epsilon_bar_squiggle^2/(2*SIGMA^2));
-F_bar_squiggle = (1 + erf(epsilon_bar_squiggle/(SIGMA*2^0.5)))/2;
+//f_j = 1/(2*SIGMA^2*pi)^0.5*expon^(-epsilon_j^2/(2*SIGMA^2));
+f_j_ST*f_j = -epsilon_j_ST^2*epsilon_j*exp(-(epsilon_j_ST^2)/(2*SIGMA^2))/(2*pi*SIGMA^6)^0.5;
 
-c_squiggle + p_h*(h_squiggle-h_squiggle(-1)) + ZETA*n_m_squiggle + R(-1)*d_squiggle(-1) = (1-n_u_squiggle)*z_a*XI + d_squiggle;
-d_squiggle = n_m_squiggle*CHI*p_h*h_squiggle + (1-n_m_squiggle)*d_squiggle(-1);
-ALPHA_pat*z_h/h_squiggle - p_h/c_squiggle + GAMMA*p_h(+1)/c_squiggle(+1) = 0;
-1/c_squiggle + GAMMA*(-R/c_squiggle(+1)) = 0;
-PSI = ZETA/c_squiggle + epsilon_bar_squiggle - lambda_cc*(CHI*p_h*h_squiggle-d_squiggle(-1));
-KAPPA - z_a*XI/c_squiggle + epsilon_do_bar_squiggle - epsilon_bar_squiggle + (1-RHO_u)*G_squiggle = 0;
+//F_j = (1 + erf(epsilon_j/(SIGMA*2^0.5)))/2;
+F_j_ST*F_j = epsilon_j_ST*epsilon_j*exp(-(epsilon_j_ST^2)/(SIGMA^2*2))/(SIGMA*2^0.5*pi^0.5);
 
-n_s_squiggle = n_u_squiggle + RHO_u*(1-n_u_squiggle);
-n_u_squiggle = n_s_squiggle(-1)*(1-g_hat(-1)+OMEGA*g_hat(-1)*(1-F_do_bar_squiggle));
-n_m_squiggle = OMEGA*g_hat(-1)*n_s_squiggle(-1)*F_do_bar_squiggle + (1-OMEGA*g_hat(-1)*n_s_squiggle(-1))*F_bar_squiggle;
-n_do_squiggle = OMEGA*g_hat(-1)*n_s_squiggle;
+//c + p_h*(h-h(-1)) + ZETA*n_m + R(-1)*d(-1) = (1-n_u)*z_a*XI + d;          c
+c_ST*c + h_ST*h*p_h_ST - h_ST*h*p_h_ST - h_ST*h(-1)*p_h_ST + n_m*n_m_ST*ZETA + R_ST*R(-1)*d_ST + d_ST*d(-1)*R_ST = d_ST*d + z_a_ST*z_a*(1-n_u_ST)*XI - n_u_ST*n_u*z_a_ST*XI;
+
+//d = n_m*CHI*p_h*h + (1-n_m)*d(-1);                                          p_h
+//d_ST*d = n_m_ST*n_m*CHI*p_h_ST*h_ST + p_h_ST*p_h*n_m_ST*CHI*h_ST + h_ST*h*n_m_ST*CHI*p_h_ST - n_m_ST*n_m*d_ST + d_ST*d(-1)*(1-n_m_ST);
+n_m_ST = (d - d(-1))/(p_h+h-1);
+
+//ALPHA_imp*z_h/h - p_h/c + BETA*p_h(+1)/c(+1) + lambda_cc*n_m*CHI*p_h = 0;   lambda_cc
+z_h_ST*z_h*ALPHA_imp/h_ST - h_ST*h*ALPHA_imp*z_h_ST/h_ST^2 + p_h_ST*p_h*(lambda_cc_ST*n_m_ST*CHI - 1/c_ST) + c_ST*c*p_h_ST/c_ST^2 + p_h_ST*p_h(+1)*BETA/c_ST - c_ST*c(+1)*BETA*p_h_ST/c_ST^2 + lambda_cc_ST*lambda_cc*n_m_ST*CHI*p_h_ST + n_m_ST*n_m*lambda_cc_ST*CHI*p_h_ST = 0;
+
+
+//1/c - lambda_cc + BETA*(lambda_cc(+1)*(1-n_m(+1))-R/c(+1)) = 0;             R
+-c/c_ST - lambda_cc_ST*lambda_cc + lambda_cc_ST*lambda_cc(+1)*(1-n_m_ST)*BETA - n_m_ST*n_m(+1)*lambda_cc_ST*BETA - R_ST*R/c_ST + c_ST*c(+1)*R_ST/c_ST^2 = 0;
+
+//PSI = ZETA/c + epsilon_bar - lambda_cc*(CHI*p_h*h-d(-1));                   epsilon_bar
+c_ST*c*(-ZETA/c_ST^2) + epsilon_bar_ST*epsilon_bar + lambda_cc_ST*lambda_cc*(d_ST-CHI*p_h_ST*h_ST) - p_h_ST*p_h*lambda_cc_ST*CHI*h_ST - h_ST*h*lambda_cc_ST*CHI*p_h_ST + d_ST*d(-1)*lambda_cc_ST = 0;
+
+//epsilon_do_bar - epsilon_bar = y/c - KAPPA + (1-RHO_u)*G;                   epsilon_do_bar
+epsilon_do_bar_ST*epsilon_do_bar - epsilon_bar_ST*epsilon_bar = y_ST*y/c_ST - c*y_ST/c_ST + G_ST*G*(1-RHO_u);
+
+
+//n_s = n_u + RHO_u*(1-n_u);
+//n_s_ST*n_s = n_u_ST*n_u*(1-RHO_u);
+n_s_ST = -n_u*RHO_u/(n_s-n_u);
+
+//n_u = n_s(-1)*(1-g_hat(-1)+OMEGA*g_hat(-1)*(1-F_do_bar));
+n_u*n_u_ST = n_s_ST*n_s(-1)*(1-g_hat_ST+OMEGA*g_hat_ST*(1-F_do_bar_ST)) + F_do_bar_ST*F_do_bar*(-OMEGA*g_hat_ST*n_s_ST) + g_hat_ST*g_hat(-1)*(-n_s_ST + n_s_ST*OMEGA*(1-F_do_bar_ST));
+
+//n_m = OMEGA*g_hat(-1)*n_s(-1)*F_do_bar + (1-OMEGA*g_hat(-1)*n_s(-1))*F_bar;
+n_m_ST*n_m = F_do_bar_ST*F_do_bar*OMEGA*g_hat_ST*n_s_ST + F_bar_ST*F_bar*(1-OMEGA*g_hat_ST*n_s_ST) + g_hat_ST*g_hat(-1)*(OMEGA*n_s_ST*F_do_bar_ST-OMEGA*F_bar_ST*n_s_ST) + n_s_ST*n_s(-1)*(OMEGA*g_hat_ST*F_do_bar_ST-F_bar_ST*OMEGA*g_hat_ST);
+
+//n_do = OMEGA*g_hat(-1)*n_s;
+//n_do_ST*n_do = g_hat_ST*g_hat(-1)*OMEGA*n_s_ST + n_s_ST*n_s*OMEGA*g_hat_ST;
+n_do = g_hat(-1)+n_s;
 
 //LABOR MARKET
 
-n_u_hat = NU*n_u + (1 - NU)*n_u_squiggle;
-n_s_hat = NU*n_s + (1 - NU)*n_s_squiggle;
-m_hat = MU*n_s_hat^ETA*v_hat^(1-ETA);
-g_hat = m_hat/n_s_hat;
-g_f_hat = m_hat/v_hat;
+//n_u_hat = NU*n_u;
+//n_u_hat_ST*n_u_hat = n_u_ST*n_u*NU;
+n_u_hat = n_u;
+
+//n_s_hat = NU*n_s;
+//n_s_hat_ST*n_s_hat = NU*n_s_ST*n_s;
+n_s_hat = n_s;
+
+//m_hat = MU*n_s_hat^ETA*v_hat^(1-ETA);
+//m_hat_ST*m_hat = n_s_hat*ETA*MU*v_hat_ST^(1-ETA)*n_s_hat_ST^ETA;
+m_hat = n_s_hat*ETA;
+
+//g_hat = m_hat/n_s_hat;
+//g_hat_ST*g_hat = m_hat_ST*m_hat/n_s_hat_ST + n_s_hat_ST*n_s_hat*(-m_hat_ST/n_s_hat_ST^2);
+g_hat = m_hat - n_s_hat;
+
+//g_f_hat = m_hat/v_hat;                  v_hat
+//g_f_hat_ST*g_f_hat = m_hat_ST*m_hat/v_hat_ST - v_hat*m_hat_ST/v_hat_ST;
+g_f_hat = m_hat - v_hat;
+
 
 //FIRMS
 
-V = (1 - XI)*z_a + (1 - RHO_u)*lambda_t_squiggle*V(+1);
-THETA = g_f_hat*(1-OMEGA+OMEGA*NU*n_s/n_s_hat*F_do_bar(+1)+OMEGA*(1-NU)*n_s_squiggle/n_s_hat*F_do_bar_squiggle(+1))*lambda_t_squiggle*V(+1);
+//0 = (1 - XI)*z_a;                                               z_a
+//0 = z_a_ST*z_a*(1-XI);
+1-XI = 0;
 
-NU*h + (1-NU)*h_squiggle = 1;
-NU*d + (1-NU)*d_squiggle = 0;
+//THETA = g_f_hat*(1-OMEGA+OMEGA*NU*n_s/n_s_hat*F_do_bar(+1))*0;  g_f_hat
+0 = g_f_hat_ST*g_f_hat*(1-OMEGA+OMEGA*NU*n_s_ST/n_s_hat_ST*F_do_bar_ST)*0 + (n_s_ST*n_s*OMEGA*NU/n_s_hat_ST*F_do_bar_ST*0 + n_s_hat*(-OMEGA*NU*n_s/n_s_hat_ST*f_do_bar_ST)*0+F_do_bar_ST*F_do_bar(+1)*OMEGA*NU*n_s/n_s_hat_ST)*g_f_hat_ST;
+
+
+//NU*h = 1;                                                       h
+//h_ST*h*NU = 0;
+h = 0;
+
+
+//NU*d = 1000;                                                    d
+//d_ST*d*NU = 0;
+d = 0;
+
 
 //OTHER EQUATIONS
 
-lambda_t_squiggle = GAMMA*c_squiggle/c_squiggle(+1);
-y = XI*z_a;
-G = BETA*(-OMEGA*g_hat*(epsilon_do_bar(+1)^2*(1+erf(epsilon_do_bar(+1)/(SIGMA*2^0.5)))/4 - epsilon_bar(+1)^2*(1+erf(epsilon_bar(+1)/(SIGMA*2^0.5)))/4)+(epsilon_do_bar(+1)-epsilon_bar(+1))*(1-g_hat+OMEGA*g_hat*(1-F_do_bar(+1)))+epsilon_bar(+1)*OMEGA*g_hat*(F_do_bar(+1)-F_bar(+1)));
-G_squiggle = GAMMA*(-OMEGA*g_hat*(epsilon_do_bar_squiggle(+1)^2*(1+erf(epsilon_do_bar_squiggle(+1)/(SIGMA*2^0.5)))/4 - epsilon_bar_squiggle(+1)^2*(1+erf(epsilon_bar_squiggle(+1)/(SIGMA*2^0.5)))/4)+(epsilon_do_bar_squiggle(+1)-epsilon_bar_squiggle(+1))*(1-g_hat+OMEGA*g_hat*(1-F_do_bar_squiggle(+1)))+epsilon_bar_squiggle(+1)*OMEGA*g_hat*(F_do_bar_squiggle(+1)-F_bar_squiggle(+1)));
-//KAPPA - z_a*XI/c + epsilon_do_bar - epsilon_bar + (1-RHO_u)*G = 0;
-//KAPPA - z_a*XI/c_squiggle + epsilon_do_bar_squiggle - epsilon_bar_squiggle + (1-RHO_u)*G_squiggle = 0;
+//y = XI*z_a;
+//y_ST*y = z_a_ST*z_a*XI;
+y = z_a;
+
+//G = BETA*(-OMEGA*g_hat*(epsilon_do_bar(+1)^2*(1+erf(epsilon_do_bar(+1)/(SIGMA*2^0.5)))/4 - epsilon_bar(+1)^2*(1+erf(epsilon_bar(+1)/(SIGMA*2^0.5)))/4)+(epsilon_do_bar(+1)-epsilon_bar(+1))*(1-g_hat+OMEGA*g_hat*(1-F_do_bar(+1)))+epsilon_bar(+1)*OMEGA*g_hat*(F_do_bar(+1)-F_bar(+1)));
+G_ST*G/BETA = g_hat_ST*g_hat*(-OMEGA*(epsilon_do_bar_ST^2*(1+erf(epsilon_do_bar_ST/(SIGMA*2^0.5)))/4-epsilon_bar_ST^2*(epsilon_bar_ST/(SIGMA*2^0.5))/4)+(OMEGA*(1-F_do_bar_ST)-1)*(epsilon_do_bar_ST-epsilon_bar_ST)) + F_bar_ST*F_bar(+1)*(-OMEGA*g_hat_ST*epsilon_bar_ST) + F_do_bar_ST*F_do_bar(+1)*(-OMEGA*g_hat_ST+epsilon_bar_ST*OMEGA*g_hat_ST) + epsilon_do_bar_ST*epsilon_do_bar(+1)*(-OMEGA*g_hat_ST*(1/2*epsilon_do_bar_ST*(1+erf(epsilon_do_bar_ST/(SIGMA*2^0.5)))+epsilon_do_bar_ST^2*exp(-epsilon_do_bar_ST^2/(2*SIGMA^2))/(2*2^0.5*pi^0.5*SIGMA))+1-g_hat_ST+OMEGA*g_hat_ST*(1-F_do_bar_ST)) + epsilon_bar_ST*epsilon_bar(+1)*(-OMEGA*g_hat_ST*(1/2*epsilon_bar_ST*(erf(epsilon_bar_ST/(SIGMA*2^0.5))+1)+epsilon_bar_ST^2*exp(-epsilon_bar_ST^2/(2*SIGMA^2))/(2*2^0.5*pi^0.5*SIGMA))-(1-g_hat_ST+OMEGA*g_hat_ST*(1-F_do_bar_ST)));
 
 end;
+
+
+
+
+
+
+
 
 
 
@@ -146,123 +267,45 @@ end;
 //assign steady state values
 initval;
 
+c = 0;
+h = 0;
+d = 0;
 
+epsilon_bar = 0;
+epsilon_do_bar = 0;
 
+n_m = 0;
+n_u = 0;
+n_s = 0;
+n_do = 0;
 
+n_u_hat = 0;
+n_s_hat = 0;
+m_hat = 0;
+g_hat = 0;
+g_f_hat = 0;
+v_hat = 0;
 
+p_h = 0;
+R = 0;
+lambda_cc = 0;
 
-//GIVEN BY THE AUTHOR
+f_do_bar = 0;
+F_do_bar = 0;
+f_bar = 0;
+F_bar = 0;
+f_j = 0;
+F_j = 0;
 
-n_u_hat = 0.05;          //First, the aggregate unemployment rate in the steady state is five percent
-m_hat = 0.0065;          //Second, the steady-state aggregate mobility rate is 0.65 percent per month
-g_f_hat = 0.34;          //Sixth, the probability that a vacancy is filled is 0.34 in the steady state
+y = 0;
+z_a = 0;
 
-
-//WRITE YOUR OWN VALUES (THE ONLY INPUT VALUES)
-
-h = 1; //stock of housing //fixed and normalized to one
-
-R = 1.05; //gross interest rate on debt
-g_hat = 0.25; //probability of unemployed member to get a job offer
-n_s = 0.15; //fraction of impatient households that look for job
-n_s_squiggle = 0.15; //fraction of patient households that look for job
-
-z_a = 300; //worker produce per period
-d = 2000; //amount of debt
-
-c = 100; //non-durable consumption of impatient households
-c_squiggle = 120; //non-durable consumption of patient households
-
-
-
-
-
-
-// Calculate analytical steady state values of endog. variables, ratios etc
-
-
-
-epsilon_j = 0;
-f_j = 1/(2*SIGMA^2*pi)^0.5*expon^(-epsilon_j^2/(2*SIGMA^2));
-F_j = (1 + erf(epsilon_j/(SIGMA*2^0.5)))/2;
-
-h_squiggle = h;                              //Fifth, the credit-constrained households consume the same amount of housing in the steady state as the patient households
-lambda_t_squiggle = GAMMA;
-V = (1-XI)*z_a/(RHO_u*lambda_t_squiggle);
-n_s_hat = n_s*NU + n_s_squiggle*(1-NU);
-d_squiggle = NU*d/(NU-1);
-v_hat = m_hat/g_f_hat;
-y = XI*z_a;
-n_do = OMEGA*g_hat*n_s;
-p_h = 1.4*z_a*12/(h+h_squiggle);                            //Fourth, the steady-state value of housing wealth is 140 per cent of annual output
-n_u = (n_s-RHO_u)/(1-RHO_u);
-n_u_squiggle = (NU*n_u-n_u_hat)/(NU-1);
-
-
-F_do_bar = (n_s-n_s*g_hat+OMEGA*n_s*g_hat-n_u)/(OMEGA*n_s*g_hat);
-epsilon_do_bar = SIGMA*2^0.5*erfinv(2*F_do_bar - 1);
-f_do_bar = 1/(2*SIGMA^2*pi)^0.5*expon^(-epsilon_do_bar^2/(2*SIGMA^2));
-
-
-epsilon_do_bar_squiggle = erfinv(-(erf(epsilon_do_bar/(SIGMA*2^0.5))*NU+1.998)/(1-NU))*SIGMA*2^0.5;        //Third, the steady-state mobility rate due to members with long-distance job offers is 0.10 per cent per month
-f_do_bar_squiggle = 1/(2*SIGMA^2*pi)^0.5*exp(-epsilon_do_bar_squiggle^2/(2*SIGMA^2));            //Third, the steady-state mobility rate due to members with long-distance job offers is 0.10 per cent per month
-F_do_bar_squiggle = (1 + erf(epsilon_do_bar_squiggle/(SIGMA*2^0.5)))/2;                          //Third, the steady-state mobility rate due to members with long-distance job offers is 0.10 per cent per month
-
-n_do_squiggle = OMEGA*g_hat*n_s_squiggle;
-
-n_m = (z_a*XI-n_u*z_a*XI+d-c-R*d)/ZETA;
-n_m_squiggle = (z_a*XI-n_u_squiggle*z_a*XI+d_squiggle-c_squiggle-R*d_squiggle)/ZETA;
-
-F_bar = (n_m - OMEGA*g_hat*n_s*F_do_bar)/(1-OMEGA*g_hat*n_s);
-epsilon_bar = SIGMA*2^0.5*erfinv(2*F_bar - 1);
-f_bar = 1/(2*SIGMA^2*pi)^0.5*expon^(-epsilon_bar^2/(2*SIGMA^2));
-F_bar_squiggle = (n_m_squiggle-OMEGA*g_hat*n_s_squiggle*F_do_bar_squiggle)/(1-OMEGA*g_hat*n_s_squiggle);
-epsilon_bar_squiggle = SIGMA*2^0.5*erfinv(2*F_bar_squiggle - 1);
-f_bar_squiggle = 1/(2*SIGMA^2*pi)^0.5*expon^(-epsilon_bar_squiggle^2/(2*SIGMA^2));
-G = BETA*(-OMEGA*g_hat*(epsilon_do_bar^2*(1+erf(epsilon_do_bar/(SIGMA*2^0.5)))/4 - epsilon_bar^2*(1+erf(epsilon_bar/(SIGMA*2^0.5)))/4)+(epsilon_do_bar-epsilon_bar)*(1-g_hat+OMEGA*g_hat*(1-F_do_bar))+epsilon_bar*OMEGA*g_hat*(F_do_bar-F_bar));
-G_squiggle = GAMMA*(-OMEGA*g_hat*(epsilon_do_bar_squiggle^2*(1+erf(epsilon_do_bar_squiggle/(SIGMA*2^0.5)))/4 - epsilon_bar_squiggle^2*(1+erf(epsilon_bar_squiggle/(SIGMA*2^0.5)))/4)+(epsilon_do_bar_squiggle-epsilon_bar_squiggle)*(1-g_hat+OMEGA*g_hat*(1-F_do_bar_squiggle))+epsilon_bar_squiggle*OMEGA*g_hat*(F_do_bar_squiggle-F_bar_squiggle));
-lambda_cc = (1-BETA*R)/(c-c*BETA+c*BETA*n_m);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//GIVEN BY THE AUTHOR 
-
-//h_squiggle = h;
-
-
-
-
-
-//(CHECK IT ONCE AGAIN)
-
-//epsilon_do_bar_squiggle = erfinv(-(erf(epsilon_do_bar/(SIGMA*2^0.5))+1.992))*SIGMA*2^0.5;
-//f_do_bar_squiggle = 1/(2*SIGMA^2*pi)^0.5*exp(-epsilon_do_bar_squiggle^2/(2*SIGMA^2));
-//F_do_bar_squiggle = (1 + erf(epsilon_do_bar_squiggle/(SIGMA*2^0.5)))/2;
-
-//p_h = 1.4*y*12/h;
-//n_do_squiggle = ((0.001-F_do_bar)*n_do*NU)/((1-NU)*(F_do_bar_squiggle-0.001));
-
-
-
-
-
+G = 0;
 
 end;
 
 //calc. and check steady state
-steady(maxit=100);
+steady(maxit=10000);
 
 //check eigenvalues
 check;
